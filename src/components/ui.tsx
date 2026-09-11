@@ -80,9 +80,9 @@ export function IconButton({ name, onPress, size = 24, color, style }: { name: I
     <Pressable
       onPress={onPress}
       hitSlop={10}
-      style={({ pressed }) => [
-        { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center', opacity: pressed ? 0.5 : 1 },
-        typeof style === 'function' ? style({ pressed }) : style,
+      style={(state) => [
+        { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center', opacity: state.pressed ? 0.5 : 1 },
+        typeof style === 'function' ? style(state) : style,
       ]}
     >
       <Ionicons name={name} size={size} color={color ?? t.text} />

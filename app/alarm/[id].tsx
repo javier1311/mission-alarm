@@ -3,6 +3,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Alert, Platform, ScrollView, TextInput, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 
+import { blockingAvailable, blockingPermissionsGranted } from '@/alarm/lock';
 import { TimePicker } from '@/components/TimePicker';
 import { Button, Card, Chip, Header, IconButton, Row, Screen, SectionTitle, Stepper, Switch, Text } from '@/components/ui';
 import { soundById } from '@/data/sounds';
@@ -153,7 +154,15 @@ export default function AlarmEditor() {
             title={tr('editor.blocking')}
             icon="lock-closed-outline"
             last={!draft.blocking.enabled}
-            right={<Switch value={draft.blocking.enabled} onValueChange={(enabled) => patch({ blocking: { ...draft.blocking, enabled } })} />}
+            right={
+              <Switch
+                value={draft.blocking.enabled}
+                onValueChange={(enabled) => {
+                  patch({ blocking: { ...draft.blocking, enabled } });
+                  if (enabled && blockingAvailable() && !blockingPermissionsGranted()) router.push('/permissions');
+                }}
+              />
+            }
           />
           {draft.blocking.enabled ? (
             <Row title={tr('editor.keepLocked')} subtitle={unlockLabel} icon="time-outline" last onPress={() => router.push('/alarm/unlock')} />

@@ -1,8 +1,10 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
+import type { PoseEventPayload } from '@modules/pose-camera';
+import { PoseCameraModule } from '@modules/pose-camera';
 import type { Exercise } from '@/store/types';
 
-import { type Pose, RepCounter } from './repCounter';
+import { type Keypoint, type Pose, RepCounter } from './repCounter';
 
 export interface PoseCounterState {
   /** Native pose detector is available in this build. */
@@ -14,17 +16,20 @@ export interface PoseCounterState {
   count: number;
 }
 
+const ZERO: Keypoint = { x: 0, y: 0, score: 0 };
+
 /**
- * Bridges the native pose detector (phase 3: react-native-vision-camera +
- * ML Kit pose frame processor) with the pure RepCounter.
- *
- * In this JS-only build there is no detector, so `supported` is false and the
- * mission screen shows the "native build required" hint. `feed()` is exposed so
- * the native frame processor can push poses without touching the UI code.
+ * Bridges the native PoseCameraView (ML Kit) with the pure RepCounter.
+ * Feed `onPose` events from the view; read count / visible / active.
  */
-export function usePoseCounter(exercise: Exercise, idleMs: number): PoseCounterState & { feed: (pose: Pose) => void } {
+export function usePoseCounter(exercise: Exercise, idleMs: number) {
   const counter = useRef(new RepCounter(exercise));
-  const [state, setState] = useState<PoseCounterState>({ supported: false, visible: false, active: false, count: 0 });
+  const [state, setState] = useState<PoseCounterState>({
+    supported: PoseCameraModule.isAvailable(),
+    visible: false,
+    active: false,
+    count: 0,
+  });
 
   useEffect(() => {
     counter.current = new RepCounter(exercise);
@@ -47,10 +52,24 @@ export function usePoseCounter(exercise: Exercise, idleMs: number): PoseCounterS
     return () => clearInterval(id);
   }, [idleMs]);
 
-  const feed = (pose: Pose) => {
+  const onPose = useCallback((e: { nativeEvent: PoseEventPayload }) => {
+    const l = e.nativeEvent.landmarks;
+    const pose: Pose = {
+      leftShoulder: l.leftShoulder ?? ZERO,
+      rightShoulder: l.rightShoulder ?? ZERO,
+      leftElbow: l.leftElbow ?? ZERO,
+      rightElbow: l.rightElbow ?? ZERO,
+      leftWrist: l.leftWrist ?? ZERO,
+      rightWrist: l.rightWrist ?? ZERO,
+      leftHip: l.leftHip ?? ZERO,
+      rightHip: l.rightHip ?? ZERO,
+      leftKnee: l.leftKnee ?? ZERO,
+      rightKnee: l.rightKnee ?? ZERO,
+      leftAnkle: l.leftAnkle ?? ZERO,
+      rightAnkle: l.rightAnkle ?? ZERO,
+    };
     counter.current.update(pose);
-    if (!state.supported) setState((s) => ({ ...s, supported: true }));
-  };
+  }, []);
 
-  return { ...state, feed };
+  return { ...state, onPose };
 }

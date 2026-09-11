@@ -1,0 +1,62 @@
+# Builds a debug-signed Android APK (installs on any phone, no account needed).
+#   dev     -> dev client: loads JS from Metro (tunnel or Wi-Fi)
+#   release -> standalone APK with the JS bundle embedded
+name: Android build
+
+on:
+  workflow_dispatch:
+    inputs:
+      variant:
+        description: 'dev (Metro) or release (standalone)'
+        required: true
+        default: 'release'
+        type: choice
+        options: [dev, release]
+  push:
+    branches: [main]
+    paths-ignore: ['**.md']
+
+jobs:
+  android:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      VARIANT: ${{ github.event.inputs.variant || 'release' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - uses: android-actions/setup-android@v3
+
+      - name: Install JS dependencies
+        run: npm ci
+
+      - name: Generate native Android project
+        run: npx expo prebuild --platform android --clean --no-install
+
+      - name: Build APK
+        working-directory: android
+        run: |
+          if [ "$VARIANT" = "dev" ]; then
+            ./gradlew :app:assembleDebug --no-daemon
+            cp app/build/outputs/apk/debug/app-debug.apk ../MissionAlarm-dev.apk
+          else
+            # Release config with the debug keystore: bundled JS, installable everywhere.
+            ./gradlew :app:assembleRelease --no-daemon
+            cp app/build/outputs/apk/release/app-release.apk ../MissionAlarm-release.apk
+          fi
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: MissionAlarm-${{ env.VARIANT }}-apk
+          path: MissionAlarm-${{ env.VARIANT }}.apk
+          retention-days: 14

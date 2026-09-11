@@ -3,7 +3,6 @@ import { useRouter } from 'expo-router';
 import { ScrollView, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 
-import { ensureNotificationPermission } from '@/alarm/scheduler';
 import { Card, Chip, Header, IconButton, Row, Screen, SectionTitle, Switch } from '@/components/ui';
 import { LANGUAGES } from '@/i18n';
 import { useStore } from '@/store';
@@ -39,9 +38,9 @@ export default function SettingsScreen() {
           <Row title={t('settings.timeFormat')} last right={<Switch value={settings.use24h} onValueChange={(use24h) => setSettings({ use24h })} />} />
         </Card>
 
-        <SectionTitle hint={t('settings.notificationsHint')}>{t('settings.notifications')}</SectionTitle>
+        <SectionTitle>{t('perms.title')}</SectionTitle>
         <Card style={{ marginHorizontal: spacing.md }}>
-          <Row title={t('settings.grant')} icon="notifications-outline" last onPress={() => ensureNotificationPermission()} />
+          <Row title={t('perms.open')} icon="shield-checkmark-outline" last onPress={() => router.push('/permissions')} />
         </Card>
 
         <SectionTitle>{t('settings.about')}</SectionTitle>

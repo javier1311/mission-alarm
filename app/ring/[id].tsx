@@ -7,6 +7,9 @@ import { BackHandler, Pressable, StyleSheet, Text as RNText, View } from 'react-
 import { useTranslation } from 'react-i18next';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { AlarmNative } from '@modules/alarm-native';
+import { finishRingLock, startRingLock } from '@/alarm/lock';
+import { rescheduleAll } from '@/alarm/scheduler';
 import { useRingSession } from '@/alarm/useRingSession';
 import { Text } from '@/components/ui';
 import { wallpaperById } from '@/data/wallpapers';
@@ -48,10 +51,22 @@ function Ring({ alarmId }: { alarmId: string }) {
 
   const onFinished = useCallback(() => {
     setActiveAlarm(null);
-    setTimeout(() => router.replace('/'), 1600);
-  }, [router, setActiveAlarm]);
+    finishRingLock(alarm);
+    rescheduleAll(useStore.getState().alarms); // next occurrence of repeating alarms
+    const locked = !!useStore.getState().lock;
+    setTimeout(() => router.replace(locked ? '/locked' : '/'), 1600);
+  }, [alarm, router, setActiveAlarm]);
 
   const { state, startMission, activity, completeMission } = useRingSession(alarm, onFinished);
+
+  // Native: show over lock screen, drop the full-screen notification, lock other apps.
+  useEffect(() => {
+    AlarmNative.showOverLockScreen(true);
+    AlarmNative.dismissNotification();
+    AlarmNative.stop(alarm.id);
+    startRingLock(alarm);
+    return () => AlarmNative.showOverLockScreen(false);
+  }, [alarm]);
 
   useEffect(() => {
     const i = setInterval(() => setNow(new Date()), 1000);

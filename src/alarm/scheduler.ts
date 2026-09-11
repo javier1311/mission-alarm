@@ -1,14 +1,17 @@
 import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
 
+import { AlarmNative } from '@modules/alarm-native';
 import i18n from '@/i18n';
 import type { Alarm } from '@/store/types';
 import { nextFireDate } from '@/utils/time';
 
 /**
- * Phase-1 scheduling: local notifications that bring the user back into the app,
- * plus an in-app ticker (see useAlarmTicker) that opens the ring screen while the
- * app is in the foreground. Phase 2 replaces this with native AlarmManager / AlarmKit.
+ * Scheduling strategy:
+ *  - Android (native build): AlarmManager via alarm-native — exact, wakes the
+ *    device, launches the app over the lock screen, survives reboot.
+ *  - Otherwise (iOS until AlarmKit, Expo Go, web): local notifications that
+ *    bring the user back into the app, plus the in-app ticker (useAlarmTicker).
  */
 
 export const CHANNEL_ID = 'alarms';
@@ -45,6 +48,27 @@ export async function ensureNotificationPermission(): Promise<boolean> {
 
 export async function rescheduleAll(alarms: Alarm[]) {
   if (Platform.OS === 'web') return;
+  if (AlarmNative.isSupported()) {
+    scheduleNative(alarms);
+    return;
+  }
+  await scheduleNotifications(alarms);
+}
+
+function scheduleNative(alarms: Alarm[]) {
+  try {
+    AlarmNative.cancelAll();
+    for (const alarm of alarms) {
+      const next = nextFireDate(alarm);
+      if (!next) continue;
+      AlarmNative.schedule(alarm.id, next.getTime(), alarm.label);
+    }
+  } catch (e) {
+    console.warn('native schedule failed', e);
+  }
+}
+
+async function scheduleNotifications(alarms: Alarm[]) {
   try {
     await Notifications.cancelAllScheduledNotificationsAsync();
     for (const alarm of alarms) {

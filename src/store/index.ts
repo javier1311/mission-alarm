@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
-import type { Alarm, CustomSound, CustomWallpaper, Settings } from './types';
+import type { Alarm, CustomSound, CustomWallpaper, LockState, Settings } from './types';
 
 interface State {
   alarms: Alarm[];
@@ -10,6 +10,7 @@ interface State {
   settings: Settings;
   /** Alarm currently ringing (survives app restarts so we can resume the ring screen). */
   activeAlarmId: string | null;
+  lock: LockState | null;
   hydrated: boolean;
 
   upsertAlarm: (alarm: Alarm) => void;
@@ -21,6 +22,7 @@ interface State {
   removeCustomWallpaper: (id: string) => void;
   setSettings: (patch: Partial<Settings>) => void;
   setActiveAlarm: (id: string | null) => void;
+  setLock: (lock: LockState | null) => void;
 }
 
 export const useStore = create<State>()(
@@ -31,6 +33,7 @@ export const useStore = create<State>()(
       customWallpapers: [],
       settings: { themeMode: 'system', language: null, use24h: true },
       activeAlarmId: null,
+      lock: null,
       hydrated: false,
 
       upsertAlarm: (alarm) =>
@@ -52,6 +55,7 @@ export const useStore = create<State>()(
         set((s) => ({ customWallpapers: s.customWallpapers.filter((x) => x.id !== id) })),
       setSettings: (patch) => set((s) => ({ settings: { ...s.settings, ...patch } })),
       setActiveAlarm: (id) => set({ activeAlarmId: id }),
+      setLock: (lock) => set({ lock }),
     }),
     {
       name: 'mission-alarm-v1',
@@ -62,6 +66,7 @@ export const useStore = create<State>()(
         customWallpapers: s.customWallpapers,
         settings: s.settings,
         activeAlarmId: s.activeAlarmId,
+        lock: s.lock,
       }),
       onRehydrateStorage: () => (state) => {
         state && useStore.setState({ hydrated: true });

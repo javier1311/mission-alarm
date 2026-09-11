@@ -27,7 +27,6 @@
     },
     "android": {
       "package": "com.missionalarm.app",
-      "edgeToEdgeEnabled": true,
       "adaptiveIcon": {
         "backgroundColor": "#0B0B0D",
         "foregroundImage": "./assets/android-icon-foreground.png",
@@ -45,7 +44,10 @@
         "USE_FULL_SCREEN_INTENT",
         "POST_NOTIFICATIONS",
         "WAKE_LOCK",
-        "FOREGROUND_SERVICE"
+        "FOREGROUND_SERVICE",
+        "SYSTEM_ALERT_WINDOW",
+        "FOREGROUND_SERVICE_SPECIAL_USE",
+        "REQUEST_IGNORE_BATTERY_OPTIMIZATIONS"
       ],
       "predictiveBackGestureEnabled": false
     },
@@ -98,7 +100,22 @@
         }
       ],
       "expo-image",
-      "@react-native-community/datetimepicker"
+      "@react-native-community/datetimepicker",
+      "expo-build-properties",
+      [
+        "expo-build-properties",
+        {
+          "ios": {
+            "useFrameworks": "static",
+            "deploymentTarget": "16.4"
+          },
+          "android": {
+            "minSdkVersion": 26
+          }
+        }
+      ],
+      "./plugins/withAlarmActivity.js",
+      "./plugins/withAlarmKit.js"
     ],
     "experiments": {
       "typedRoutes": true

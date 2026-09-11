@@ -71,6 +71,15 @@ export interface Alarm {
   createdAt: number;
 }
 
+/** Active post-alarm app lock (persisted so it survives app restarts). */
+export interface LockState {
+  alarmId: string;
+  rule: UnlockRule;
+  /** Hard deadline (epoch ms) after which the lock ends no matter what. */
+  until: number;
+  startedAt: number;
+}
+
 export interface CustomSound {
   id: string; // 'custom:<uid>'
   name: string;

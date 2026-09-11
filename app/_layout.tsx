@@ -46,6 +46,8 @@ function Root() {
       >
         <Stack.Screen name="index" />
         <Stack.Screen name="settings" />
+        <Stack.Screen name="permissions" />
+        <Stack.Screen name="locked" options={{ gestureEnabled: false, animation: 'fade' }} />
         <Stack.Screen name="alarm/[id]" />
         <Stack.Screen name="alarm/sound" />
         <Stack.Screen name="alarm/wallpaper" />
