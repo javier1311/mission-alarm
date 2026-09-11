@@ -132,7 +132,7 @@ function Ring({ alarmId }: { alarmId: string }) {
 
         {/* Bottom action */}
         {state.phase !== 'done' ? (
-          <View style={{ alignItems: 'center', gap: spacing.sm }}>
+          <View style={{ alignItems: 'center', justifyContent: 'flex-end', gap: spacing.sm, minHeight: 100 }}>
             {alarm.missions.length === 0 ? (
               <BigButton label={t('ring.dismiss')} fg={fg} onPress={startMission} />
             ) : state.phase === 'ringing' ? (

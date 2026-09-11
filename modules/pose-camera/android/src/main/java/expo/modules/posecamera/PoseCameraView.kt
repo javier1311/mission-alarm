@@ -84,7 +84,10 @@ class PoseCameraView(context: Context, appContext: AppContext) : ExpoView(contex
           .build()
         analysis.setAnalyzer(analysisExecutor) { proxy -> analyze(proxy) }
 
-        val selector = if (facing == "back") CameraSelector.DEFAULT_BACK_CAMERA else CameraSelector.DEFAULT_FRONT_CAMERA
+        val wanted = if (facing == "back") CameraSelector.DEFAULT_BACK_CAMERA else CameraSelector.DEFAULT_FRONT_CAMERA
+        val other = if (facing == "back") CameraSelector.DEFAULT_FRONT_CAMERA else CameraSelector.DEFAULT_BACK_CAMERA
+        // Fall back to whichever camera exists (emulators often have only one).
+        val selector = if (provider.hasCamera(wanted)) wanted else other
         provider.bindToLifecycle(lifecycleOwner, selector, preview, analysis)
       } catch (e: Exception) {
         Log.e("PoseCamera", "bind failed", e)
