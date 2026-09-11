@@ -1,0 +1,78 @@
+# Builds unsigned iOS .ipa files on GitHub's macOS runners (no Mac needed locally).
+# Install on an iPhone from Windows with Sideloadly using a free Apple ID.
+#
+#   dev   -> Debug build with expo-dev-client: loads JS from Metro on your PC over Wi-Fi
+#   release -> Release build with the JS bundle embedded: works standalone
+name: iOS build
+
+on:
+  workflow_dispatch:
+    inputs:
+      variant:
+        description: 'dev (Metro over Wi-Fi) or release (standalone)'
+        required: true
+        default: 'dev'
+        type: choice
+        options: [dev, release]
+  push:
+    branches: [main]
+    paths-ignore: ['**.md']
+
+jobs:
+  ios:
+    runs-on: macos-latest
+    timeout-minutes: 60
+    env:
+      VARIANT: ${{ github.event.inputs.variant || 'dev' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
+
+      - name: Install JS dependencies
+        run: npm ci
+
+      - name: Generate native iOS project
+        run: npx expo prebuild --platform ios --clean --no-install
+
+      - name: Install CocoaPods
+        working-directory: ios
+        run: pod install
+
+      - name: Build (unsigned)
+        run: |
+          CONFIG=Release
+          if [ "$VARIANT" = "dev" ]; then CONFIG=Debug; fi
+          SCHEME=$(ls ios/*.xcworkspace | head -1 | xargs basename | sed 's/.xcworkspace//')
+          xcodebuild \
+            -workspace "ios/$SCHEME.xcworkspace" \
+            -scheme "$SCHEME" \
+            -configuration "$CONFIG" \
+            -sdk iphoneos \
+            -derivedDataPath build \
+            -destination 'generic/platform=iOS' \
+            CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO \
+            | xcpretty && exit ${PIPESTATUS[0]}
+          echo "SCHEME=$SCHEME" >> $GITHUB_ENV
+          echo "CONFIG=$CONFIG" >> $GITHUB_ENV
+
+      - name: Package .ipa
+        run: |
+          APP=$(find build/Build/Products/${CONFIG}-iphoneos -maxdepth 1 -name '*.app' | head -1)
+          mkdir -p Payload
+          cp -R "$APP" Payload/
+          zip -qr "MissionAlarm-${VARIANT}.ipa" Payload
+          ls -la *.ipa
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: MissionAlarm-${{ env.VARIANT }}-ipa
+          path: MissionAlarm-${{ env.VARIANT }}.ipa
+          retention-days: 14

@@ -1,0 +1,107 @@
+{
+  "expo": {
+    "name": "Mission Alarm",
+    "slug": "mission-alarm",
+    "version": "0.1.0",
+    "scheme": "missionalarm",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#0B0B0D"
+    },
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.missionalarm.app",
+      "infoPlist": {
+        "NSCameraUsageDescription": "Camera is used for missions: barcode scan, photo and fitness detection.",
+        "NSLocationWhenInUseUsageDescription": "Location is used to verify outdoor photo and unlock-by-location missions.",
+        "NSPhotoLibraryUsageDescription": "Choose your own alarm wallpaper.",
+        "UIBackgroundModes": [
+          "audio"
+        ]
+      }
+    },
+    "android": {
+      "package": "com.missionalarm.app",
+      "edgeToEdgeEnabled": true,
+      "adaptiveIcon": {
+        "backgroundColor": "#0B0B0D",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "permissions": [
+        "CAMERA",
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION",
+        "VIBRATE",
+        "RECEIVE_BOOT_COMPLETED",
+        "SCHEDULE_EXACT_ALARM",
+        "USE_EXACT_ALARM",
+        "USE_FULL_SCREEN_INTENT",
+        "POST_NOTIFICATIONS",
+        "WAKE_LOCK",
+        "FOREGROUND_SERVICE"
+      ],
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "favicon": "./assets/favicon.png",
+      "bundler": "metro"
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-audio",
+        {
+          "microphonePermission": false
+        }
+      ],
+      "expo-localization",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Camera is used for missions: barcode scan, photo and fitness detection."
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "Location is used to verify outdoor photo and unlock-by-location missions."
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Choose your own alarm wallpaper."
+        }
+      ],
+      [
+        "expo-notifications",
+        {
+          "sounds": []
+        }
+      ],
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/splash-icon.png",
+          "resizeMode": "contain",
+          "backgroundColor": "#0B0B0D",
+          "dark": {
+            "backgroundColor": "#0B0B0D"
+          }
+        }
+      ],
+      "expo-image",
+      "@react-native-community/datetimepicker"
+    ],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}
