@@ -46,6 +46,8 @@ jobs:
       - name: Build APK
         working-directory: android
         run: |
+          echo "org.gradle.jvmargs=-Xmx5g -XX:MaxMetaspaceSize=1g" >> gradle.properties
+          echo "org.gradle.workers.max=2" >> gradle.properties
           if [ "$VARIANT" = "dev" ]; then
             ./gradlew :app:assembleDebug --no-daemon
             cp app/build/outputs/apk/debug/app-debug.apk ../MissionAlarm-dev.apk
