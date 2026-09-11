@@ -2,7 +2,7 @@
 // Lives in the app target (not the pod) so App Intents metadata is extracted
 // correctly and the alarm buttons can open the app.
 import AlarmKit
-import AlarmNative
+public import AlarmNative
 import AppIntents
 import CryptoKit
 import Foundation
