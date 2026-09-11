@@ -66,8 +66,18 @@ assets/wallpapers/   16 обоев
 ## Дорожная карта
 
 - [x] Фаза 1 — UI, будильники, звуки, обои, миссии: математика, штрихкод, фото
-- [ ] Фаза 2 — нативный будильник Android (AlarmManager, full-screen intent, после перезагрузки) + блокировка приложений
-- [ ] Фаза 3 — фитнес-миссия: ML Kit Pose Detection (vision-camera), отжимания/приседания
-- [ ] Фаза 4 — iOS AlarmKit (iOS 26+)
-- [ ] Фаза 5 — пост-миссии разблокировки по геолокации (вышел из дома / доехал до работы)
+- [x] Фаза 2 — нативный будильник Android (`modules/alarm-native`: AlarmManager, full-screen intent, после перезагрузки) + блокировка приложений (`modules/app-blocker`: UsageStats + foreground service)
+- [x] Фаза 3 — фитнес-миссия: `modules/pose-camera` (CameraX/AVFoundation + ML Kit Pose), счётчик повторений в `src/missions/fitness`
+- [x] Фаза 4 — iOS AlarmKit (iOS 26+): `plugins/withAlarmKit.js` + `plugins/ios/AlarmKitBridge.swift`
+- [x] Фаза 5 — пост-блокировка: до времени / доп. миссия / геолокация (`app/locked.tsx`)
 - [ ] iOS блокировка приложений (Screen Time API — нужен платный Apple Developer)
+- [ ] Свои звуки в системном будильнике iOS (AlarmKit `.named` — нужно копировать файлы в bundle)
+
+## Локальная Android-сборка (Windows)
+
+JDK 17 и Android SDK лежат в `D:\Claude	ools` (без Android Studio). Эмулятор `test36` (Android 16).
+```
+npx expo prebuild --platform android
+cd android && gradlew.bat :app:assembleDebug
+```
+Нативные модули лежат в `modules/` (Expo Modules API, автолинк). После изменения Kotlin/Swift нужна пересборка.
