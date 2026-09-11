@@ -46,8 +46,8 @@ public class AlarmNativeModule: Module {
       bridge.requestAuthorization { granted in promise.resolve(granted) }
     }
 
-    Function("schedule") { (id: String, triggerAt: Double, label: String) in
-      self.bridge?.schedule(id, timestamp: triggerAt, label: label, stopText: "Stop", missionText: "Mission") { error in
+    Function("schedule") { (id: String, triggerAt: Double, label: String, stopText: String, missionText: String) in
+      self.bridge?.schedule(id, timestamp: triggerAt, label: label, stopText: stopText, missionText: missionText) { error in
         if let error { NSLog("AlarmKit schedule failed: %@", error) }
       }
     }

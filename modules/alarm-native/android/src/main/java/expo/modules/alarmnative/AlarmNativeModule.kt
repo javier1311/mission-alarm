@@ -21,7 +21,7 @@ class AlarmNativeModule : Module() {
 
     Function("isSupported") { true }
 
-    Function("schedule") { id: String, triggerAt: Double, label: String ->
+    Function("schedule") { id: String, triggerAt: Double, label: String, _: String, _: String ->
       AlarmStore.schedule(context, id, triggerAt.toLong(), label)
     }
 

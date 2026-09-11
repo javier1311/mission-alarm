@@ -27,12 +27,16 @@ export default function PermissionsScreen() {
   const { t: tr } = useTranslation();
   const router = useRouter();
   const [perms, setPerms] = useState<Perm[]>([]);
+  const [alarmKit, setAlarmKit] = useState(false);
 
   const refresh = useCallback(async () => {
     const notif = (await Notifications.getPermissionsAsync().catch(() => ({ granted: false }))).granted;
     const list: Perm[] = [
       { key: 'notifications', granted: notif, request: () => ensureNotificationPermission().then(refresh), required: true },
     ];
+    if (Platform.OS === 'ios' && AlarmNative.isSupported()) {
+      list.push({ key: 'alarmKit', granted: alarmKit, request: () => AlarmNative.requestAuthorization().then((ok) => setAlarmKit(ok)), required: true });
+    }
     if (Platform.OS === 'android' && AlarmNative.isSupported()) {
       list.push({ key: 'exactAlarm', granted: AlarmNative.canScheduleExact(), request: AlarmNative.openExactAlarmSettings, required: true });
     }
@@ -44,7 +48,7 @@ export default function PermissionsScreen() {
       );
     }
     setPerms(list);
-  }, []);
+  }, [alarmKit]);
 
   useEffect(() => {
     refresh();

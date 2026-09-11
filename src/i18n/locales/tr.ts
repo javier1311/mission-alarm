@@ -213,6 +213,8 @@ const tr: Translation = {
     granted: 'Verildi',
     notifications: 'Bildirimler',
     notificationsHint: 'Uygulama kapalıyken alarmı gösterir',
+    alarmKit: 'Alarmlar (iOS)',
+    alarmKitHint: 'Sessiz modda ve Odaklanmada çalmasını sağlar',
     exactAlarm: 'Alarmlar ve hatırlatıcılar',
     exactAlarmHint: 'Tam alarm saati (Android 12+)',
     overlay: 'Diğer uygulamaların üzerinde göster',

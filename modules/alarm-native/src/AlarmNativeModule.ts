@@ -6,7 +6,7 @@ export type AlarmNativeEvents = {
 
 declare class AlarmNativeModule extends NativeModule<AlarmNativeEvents> {
   isSupported(): boolean;
-  schedule(id: string, triggerAt: number, label: string): void;
+  schedule(id: string, triggerAt: number, label: string, stopText: string, missionText: string): void;
   cancel(id: string): void;
   cancelAll(): void;
   takeFiredAlarmId(): string | null;
@@ -23,7 +23,9 @@ const native = requireOptionalNativeModule<AlarmNativeModule>('AlarmNative');
 /** Safe wrapper: no-ops when the native module is absent (Expo Go / web). */
 export const AlarmNative = {
   isSupported: () => !!native && native.isSupported(),
-  schedule: (id: string, triggerAt: number, label: string) => native?.schedule(id, triggerAt, label),
+  /** stopText / missionText label the buttons of the OS alarm alert (iOS AlarmKit). */
+  schedule: (id: string, triggerAt: number, label: string, stopText: string, missionText: string) =>
+    native?.schedule(id, triggerAt, label, stopText, missionText),
   cancel: (id: string) => native?.cancel(id),
   cancelAll: () => native?.cancelAll(),
   takeFiredAlarmId: () => native?.takeFiredAlarmId() ?? null,

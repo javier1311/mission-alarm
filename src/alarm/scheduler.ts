@@ -61,7 +61,7 @@ function scheduleNative(alarms: Alarm[]) {
     for (const alarm of alarms) {
       const next = nextFireDate(alarm);
       if (!next) continue;
-      AlarmNative.schedule(alarm.id, next.getTime(), alarm.label);
+      AlarmNative.schedule(alarm.id, next.getTime(), alarm.label || i18n.t('notif.title'), i18n.t('ring.dismiss'), i18n.t('ring.doMission'));
     }
   } catch (e) {
     console.warn('native schedule failed', e);

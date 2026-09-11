@@ -211,6 +211,8 @@ const en = {
     granted: 'Granted',
     notifications: 'Notifications',
     notificationsHint: 'Shows the alarm when the app is closed',
+    alarmKit: 'Alarms (iOS)',
+    alarmKitHint: 'Lets the alarm ring in silent mode and Focus',
     exactAlarm: 'Alarms & reminders',
     exactAlarmHint: 'Exact alarm time (Android 12+)',
     overlay: 'Display over other apps',

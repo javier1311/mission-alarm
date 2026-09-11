@@ -213,6 +213,8 @@ const tk: Translation = {
     granted: 'Berildi',
     notifications: 'Bildirişler',
     notificationsHint: 'Programma ýapykka oýarýjyny görkezýär',
+    alarmKit: 'Oýarýjylar (iOS)',
+    alarmKitHint: 'Sessiz režimde we Fokusda jaň etmäge mümkinçilik berýär',
     exactAlarm: 'Oýarýjylar we ýatlatmalar',
     exactAlarmHint: 'Takyk jaň wagty (Android 12+)',
     overlay: 'Beýleki programmalaryň üstünde görkez',

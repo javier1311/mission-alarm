@@ -213,6 +213,8 @@ const ru: Translation = {
     granted: 'Есть',
     notifications: 'Уведомления',
     notificationsHint: 'Показывает будильник при закрытом приложении',
+    alarmKit: 'Будильники (iOS)',
+    alarmKitHint: 'Позволяет звонить в беззвучном режиме и в Фокусе',
     exactAlarm: 'Будильники и напоминания',
     exactAlarmHint: 'Точное время срабатывания (Android 12+)',
     overlay: 'Поверх других приложений',
