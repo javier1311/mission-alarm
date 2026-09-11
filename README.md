@@ -75,7 +75,7 @@ assets/wallpapers/   16 обоев
 
 ## Локальная Android-сборка (Windows)
 
-JDK 17 и Android SDK лежат в `D:\Claude	ools` (без Android Studio). Эмулятор `test36` (Android 16).
+JDK 17 и Android SDK лежат в `D:/Claude/tools` (без Android Studio). Эмулятор `test36` (Android 16).
 ```
 npx expo prebuild --platform android
 cd android && gradlew.bat :app:assembleDebug
