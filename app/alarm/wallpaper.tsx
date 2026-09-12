@@ -3,7 +3,7 @@ import { Directory, File, Paths } from 'expo-file-system';
 import { Image } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
 import { useRouter } from 'expo-router';
-import { Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Platform, Pressable, ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 
 import { Header, IconButton, Screen, SectionTitle, Text } from '@/components/ui';
@@ -22,6 +22,10 @@ export default function WallpaperPicker() {
   const custom = useStore((s) => s.customWallpapers);
   const addCustomWallpaper = useStore((s) => s.addCustomWallpaper);
   const removeCustomWallpaper = useStore((s) => s.removeCustomWallpaper);
+  // Explicit tile size: percentage width + aspectRatio collapses to 0 height on native inside a wrapping row.
+  const { width } = useWindowDimensions();
+  const tileW = Math.floor((Math.min(width, 600) - spacing.md * 2 - spacing.sm * 2) / 3);
+  const tileStyle = { width: tileW, height: Math.round((tileW * 16) / 9) };
 
   const pick = async () => {
     const res = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], quality: 0.8, allowsEditing: false });
@@ -53,7 +57,7 @@ export default function WallpaperPicker() {
   const tile = (id: string, source: number | { uri: string }, onRemove?: () => void) => {
     const selected = draft?.wallpaperId === id;
     return (
-      <Pressable key={id} onPress={() => patch({ wallpaperId: id })} style={({ pressed }) => [styles.tile, { opacity: pressed ? 0.7 : 1, borderColor: selected ? t.text : 'transparent' }]}>
+      <Pressable key={id} onPress={() => patch({ wallpaperId: id })} style={({ pressed }) => [styles.tile, tileStyle, { opacity: pressed ? 0.7 : 1, borderColor: selected ? t.text : 'transparent' }]}>
         <Image source={source} style={StyleSheet.absoluteFill} contentFit="cover" />
         {selected ? (
           <View style={styles.check}>
@@ -76,7 +80,7 @@ export default function WallpaperPicker() {
         <SectionTitle>{tr('wallpapers.custom')}</SectionTitle>
         <View style={styles.grid}>
           {custom.map((w) => tile(w.id, { uri: w.uri }, () => remove(w.id)))}
-          <Pressable onPress={pick} style={({ pressed }) => [styles.tile, { backgroundColor: t.surface, borderColor: 'transparent', opacity: pressed ? 0.7 : 1, alignItems: 'center', justifyContent: 'center' }]}>
+          <Pressable onPress={pick} style={({ pressed }) => [styles.tile, tileStyle, { backgroundColor: t.surface, borderColor: 'transparent', opacity: pressed ? 0.7 : 1, alignItems: 'center', justifyContent: 'center' }]}>
             <Ionicons name="add" size={28} color={t.muted} />
             <Text variant="caption" style={{ textAlign: 'center', paddingHorizontal: 6 }}>{tr('wallpapers.addFromGallery')}</Text>
           </Pressable>
@@ -90,7 +94,7 @@ export default function WallpaperPicker() {
 
 const styles = StyleSheet.create({
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm, paddingHorizontal: spacing.md },
-  tile: { width: '31%', aspectRatio: 9 / 16, borderRadius: radius.md, overflow: 'hidden', borderWidth: 2 },
+  tile: { borderRadius: radius.md, overflow: 'hidden', borderWidth: 2 },
   check: { position: 'absolute', top: 8, right: 8, width: 24, height: 24, borderRadius: 12, backgroundColor: '#fff', alignItems: 'center', justifyContent: 'center' },
   remove: { position: 'absolute', top: 8, left: 8, width: 24, height: 24, borderRadius: 12, backgroundColor: 'rgba(0,0,0,0.6)', alignItems: 'center', justifyContent: 'center' },
 });

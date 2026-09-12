@@ -8,6 +8,7 @@ import { useTranslation } from 'react-i18next';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AlarmNative } from '@modules/alarm-native';
+import { VolumeLock } from '@modules/volume-lock';
 import { finishRingLock, startRingLock } from '@/alarm/lock';
 import { rescheduleAll } from '@/alarm/scheduler';
 import { useRingSession } from '@/alarm/useRingSession';
@@ -50,6 +51,7 @@ function Ring({ alarmId }: { alarmId: string }) {
   const [now, setNow] = useState(new Date());
 
   const onFinished = useCallback(() => {
+    VolumeLock.unlock();
     setActiveAlarm(null);
     finishRingLock(alarm);
     rescheduleAll(useStore.getState().alarms); // next occurrence of repeating alarms
@@ -65,7 +67,12 @@ function Ring({ alarmId }: { alarmId: string }) {
     AlarmNative.dismissNotification();
     AlarmNative.stop(alarm.id);
     startRingLock(alarm);
-    return () => AlarmNative.showOverLockScreen(false);
+    // Pin the system volume so the hardware buttons can't silence the alarm.
+    VolumeLock.lock(alarm.volume);
+    return () => {
+      AlarmNative.showOverLockScreen(false);
+      VolumeLock.unlock();
+    };
   }, [alarm]);
 
   useEffect(() => {

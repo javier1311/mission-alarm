@@ -1,0 +1,9 @@
+{
+  "platforms": ["apple", "android"],
+  "apple": {
+    "modules": ["VolumeLockModule"]
+  },
+  "android": {
+    "modules": ["expo.modules.volumelock.VolumeLockModule"]
+  }
+}

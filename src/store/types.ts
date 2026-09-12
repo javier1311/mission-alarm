@@ -105,7 +105,7 @@ export const defaultAlarm = (id: string): Alarm => ({
   enabled: true,
   label: '',
   soundId: 'classic_classic_alarm',
-  wallpaperId: 'midnight',
+  wallpaperId: 'aurora',
   volume: 0.8,
   vibrate: true,
   missions: [],

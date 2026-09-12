@@ -1,5 +1,7 @@
 import { type AudioPlayer, createAudioPlayer, setAudioModeAsync } from 'expo-audio';
-import { Vibration } from 'react-native';
+import { Platform, Vibration } from 'react-native';
+
+import { VolumeLock } from '@modules/volume-lock';
 
 import { isCustomId, soundById } from '@/data/sounds';
 import { useStore } from '@/store';
@@ -31,7 +33,8 @@ class AlarmPlayer {
     if (!source) return;
     const p = createAudioPlayer(source, { keepAudioSessionActive: true });
     p.loop = true;
-    p.volume = volume;
+    // With the native volume lock the system volume is pinned to `volume`; play at full player gain.
+    p.volume = VolumeLock.isSupported() ? 1 : volume;
     p.play();
     this.player = p;
     if (vibrate) this.startVibration();
@@ -77,15 +80,27 @@ class AlarmPlayer {
     }
   }
 
+  private vibrationTimer: ReturnType<typeof setInterval> | null = null;
+
   private startVibration() {
     if (this.vibrating) return;
     this.vibrating = true;
-    Vibration.vibrate([500, 800, 500, 800], true);
+    if (Platform.OS === 'ios') {
+      // iOS only supports a single ~0.5 s buzz per call; loop it ourselves.
+      Vibration.vibrate();
+      this.vibrationTimer = setInterval(() => Vibration.vibrate(), 1200);
+    } else {
+      Vibration.vibrate([500, 800, 500, 800], true);
+    }
   }
 
   private stopVibration() {
     if (!this.vibrating) return;
     this.vibrating = false;
+    if (this.vibrationTimer) {
+      clearInterval(this.vibrationTimer);
+      this.vibrationTimer = null;
+    }
     Vibration.cancel();
   }
 }
